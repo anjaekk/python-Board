@@ -23,7 +23,15 @@ def format_datetime(value):
     offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
     value = datetime.fromtimestamp((int(value) / 1000)) + offset
     return value.strftime('%Y-%m-%d %H:%M:%S')
- 
+
+
+@app.route("/list")
+def lists():
+    board = mongo.db.board
+    datas = board.find({})
+    return render_template("list.html", datas-datas)
+    
+
 @app.route("/view/<idx>")
 def board_view(idx):
     #idx = request.args.get("idx")
