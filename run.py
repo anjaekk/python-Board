@@ -7,11 +7,13 @@ from bson.objectid import ObjectId
 from flask import abort
 from flask import redirect
 from flask import url_for
+from flask import flash
 import time
 import math 
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb://localhost:27017/myweb"
+app.config["SECRET_KEY"] = "abcd"
 mongo = PyMongo(app)
 
 
@@ -139,5 +141,47 @@ def board_write():
         return render_template("write.html")
 
 
+@app.route("/join", methods=["GET", "POST"])
+def member_join():
+    if request.method == "POST":
+        name = request.form.get("name", type=str)
+        email = request.form.get("email", type=str)
+        pass1 = request.form.get("pass", type=str)
+        pass2 = request.form.get("pass2", type=str)
+
+        if name == "" or email == "" or pass1 == "" or pass2 == "":
+            flash("입력되지 않은 값이 있습니다.")
+            return render_template("join.html") # join으로 다시 복귀
+  
+        if pass1 != pass2:
+            flash("비밀번호가 일치하지 않습니다.")
+            return render_template("join.html") # join으로 다시 복귀
+
+        members = mongo.db.members
+        cnt = members.find({"email": email}).count()
+        if cnt > 0:
+            flash("중복된 이메일 주소입니다.")
+            return render_template("join.html") # join으로 다시 복귀
+        
+
+        current_utc_time = round(datetime.utcnow().timestamp() * 1000)
+        post = {
+            "name": name,
+            "email": email,
+            "pass": pass1,
+            "joindate": current_utc_time,
+            "logintime": "",
+            "logincount": 0
+        }
+
+        members.insert_one(post)
+
+        return ""
+    else:
+        return render_template("join.html")
+
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=9000)
+ 
