@@ -10,6 +10,7 @@ from flask import redirect
 from flask import url_for
 from flask import flash
 from flask import session
+from functools import wraps
 import time
 import math 
 
@@ -20,6 +21,15 @@ app.config["SECRET_KEY"] = "abcd"
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 mongo = PyMongo(app)
 
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("id") is None or session.get("id") == "":
+            # next_url에 현재 주소값인 request.url넘겨줌
+            return redirect(url_for("member_login", next_url=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.template_filter("formatdatetime")
 def format_datetime(value):
@@ -95,6 +105,7 @@ def lists():
 
 
 @app.route("/view/<idx>")
+@login_required
 def board_view(idx):
     # idx = request.args.get("idx")
     if idx is not None:
@@ -113,6 +124,7 @@ def board_view(idx):
                 "contents": data.get("contents"),
                 "pubdate": data.get("pubdate"),
                 "view": data.get("view"),
+                "wirter_id": data.get("writer_id", ""),
             }
 
             return render_template("view.html", result=result, page=page, search=search, keyword=keyword)
@@ -122,6 +134,10 @@ def board_view(idx):
 
 @app.route("/write", methods=["GET", "POST"])
 def board_write():
+    # 로그인 해야 글 작성 가능
+    #if session.get("id") is None:
+    #    return redirect(url_for("member_login"))
+@login_required
     if request.method == "POST":
         name = request.form.get("name")
         title = request.form.get("title")
@@ -135,6 +151,7 @@ def board_write():
             "title": title,
             "contents": contents,
             "pubdate": current_utc_time,
+            "writer_id": session.get("id"),
             "view": 0,
         }
 
@@ -190,6 +207,7 @@ def member_login():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("pass")
+        next_url = request.form.get("next_url")
 
         members = mongo.db.members
         data = members.find_one({"email": email})
@@ -211,8 +229,20 @@ def member_login():
                 return redirect(url_for("member_login"))
         return ""
     else:
-        return render_template("login.html")
+        next_url = request.args.get("next_url", type=str)
+        if next_url is not None:
+            return render_template("login.html", next_url=next_url)
+        else: 
+            return render_template("login.html")
 
+@app.route("/edit/<idx>", methods=["GET", "POST"])
+def board_edit(idx):
+    return ""
+
+
+@app.route("/delete/<idx>")
+def board_delete(idx):
+    return ""
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=9000)

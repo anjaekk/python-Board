@@ -11,7 +11,7 @@
         <form name="form" method="POST" action="/write">
         <tr>
             <td>작성자</td>
-            <td><input type="text" name="name"></td>
+            <td><input type="text" name="name" value="{{session['name']}}" readonly></td>
         </tr>
         <tr>
             <td>제목</td>
