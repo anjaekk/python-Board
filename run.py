@@ -66,11 +66,11 @@ def lists():
         search_list.append({"contents": {"$regex" : keyword}})
     elif search == 2:
         search_list.append({"name": {"$regex" : keyword}})       
-    
-    # 검색 대상이 한개라도 존재할 경우 query 변수에 $or 리스트를 쿼리 함
+
+       # 검색 대상이 한개라도 존재할 경우 query 변수에 $or 리스트를 쿼리 함
     if len(search_list) > 0:
         query = {"$or": search_list}
-    
+
 
     print(query)
 
@@ -101,7 +101,7 @@ def lists():
         block_last=block_last,
         last_page_num=last_page_num,
         search=search,
-        keyword=keyword) 
+        keyword=keyword)
 
 
 @app.route("/view/<idx>")
@@ -133,11 +133,11 @@ def board_view(idx):
 
 
 @app.route("/write", methods=["GET", "POST"])
+@login_required
 def board_write():
     # 로그인 해야 글 작성 가능
     #if session.get("id") is None:
     #    return redirect(url_for("member_login"))
-@login_required
     if request.method == "POST":
         name = request.form.get("name")
         title = request.form.get("title")
@@ -246,4 +246,4 @@ def board_delete(idx):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=9000)
- 
+
