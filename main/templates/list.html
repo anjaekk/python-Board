@@ -1,10 +1,7 @@
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <script>
-            alert("{{messages[-1]}}")
-        </script>
-    {% endif %}
-{% endwith %}
+{% extends "main.html" %}
+
+{% block contents %}
+
 <script>
     function search() {
         var v_search = document.getElementById("search").value;
@@ -78,3 +75,5 @@
 {% endif %}
 
 <a href="{{url_for('board.board_write')}}">글작성</a>
+
+{% endblock %}

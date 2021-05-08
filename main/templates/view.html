@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "main.html" %}
+{% block contents %}
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <script>
@@ -32,6 +25,4 @@
     <a href="{{url_for('board.board_delete', idx=result.id)}}">글삭제</a>
     <a href="{{url_for('board.board_edit', idx=result.id)}}">글수정</a>
     {% endif %}
-
-</body>
-</html> 
+{% endblock %}
